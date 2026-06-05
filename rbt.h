@@ -15,7 +15,8 @@ class rbt
 public:
     Node *root;
 
-    char insert_like_bst(Node *n);
+    int insert_like_bst(Node *n);
+    int determine_case(Node *n, Node *parent, Node *grand_parent, Node *uncle);
 
 public:
     rbt();
@@ -26,6 +27,7 @@ public:
     Node *find_uncle(Node *n);
 
     void three_node_case(Node *n);
+    void four_node_case(Node *n);
 
     void rotate_right(Node *n);
     void rotate_left(Node *n);
@@ -34,7 +36,130 @@ public:
     void rotate_left(Node *n, Node *grand_parent, Node *parent);
 
     void insert(int value);
+
+    int determine_case(Node *n);
 };
+
+// determine whether we have a 2node, 3node or a 4node case
+// 2node = parent is black   returns 2
+// 3node = parent is red gp is black and uncle is black  returns 3
+// 4node = parent is red gp is black and uncle is red    returns 4
+int rbt::determine_case(Node *n)
+{
+
+    Node *parent = find_parent(n);
+    // 2node = parent is black
+    if (parent->color == 'b')
+    {
+        return 2;
+    }
+
+    Node *grand_parent = find_parent(parent);
+
+    if (parent->color == 'r' && grand_parent->color == 'b')
+    {
+        // find uncle
+        Node *uncle = nullptr;
+        if (grand_parent->right == parent)
+        {
+            uncle = grand_parent->left;
+        }
+        else if (grand_parent->left == parent)
+        {
+            uncle = grand_parent->right;
+        }
+
+        // 3node = parent is red gp is black and uncle is black
+        if (uncle == nullptr || uncle->color == 'b')
+        {
+            return 3;
+        }
+
+        // 4node = parent is red gp is black and uncle is red
+        // Now the uncle must be red
+        return 4;
+    }
+
+    return -1; // error
+}
+
+// Handles the 4node case where = parent is red gp is black and uncle is red
+void rbt::four_node_case(Node *n)
+{
+
+    Node *parent = find_parent(n);
+    Node *grand_parent = find_parent(parent);
+    Node *uncle = nullptr;
+    if (grand_parent->right == parent)
+    {
+        uncle = grand_parent->left;
+    }
+    else if (grand_parent->left == parent)
+    {
+        uncle = grand_parent->right;
+    }
+
+    // color flip
+    grand_parent->color = 'r';
+    uncle->color = 'b';
+    parent->color = 'b';
+
+    // simplest case also the base case for recursion
+    if (grand_parent == root)
+    {
+        // root would always be black
+        grand_parent->color = 'b';
+        return;
+    }
+
+    // Node *great_grandparent = find_parent(grand_parent);
+
+    int node_case = determine_case(grand_parent);
+
+    if (node_case == 2)
+    {
+        return;
+    }
+    else if (node_case == 3)
+    {
+        three_node_case(grand_parent);
+        return;
+    }
+    else if (node_case == 4)
+    {
+        // go until you find a 2node, 3node or root
+        four_node_case(grand_parent);
+        return;
+    }
+}
+
+// determine whether we have a 2node, 3node or a 4node case
+// 2node = parent is black   returns 2
+// 3node = parent is red gp is black and uncle is black  returns 3
+// 4node = parent is red gp is black and uncle is red    returns 4
+int rbt::determine_case(Node *n, Node *parent, Node *grand_parent, Node *uncle)
+{
+
+    // 2node = parent is black
+    if (parent->color == 'b')
+    {
+        return 2;
+    }
+    // 3node = parent is red gp is black and uncle is black
+    else if (parent->color == 'r' && grand_parent->color == 'b')
+    {
+        if (uncle == nullptr || uncle->color == 'b')
+        {
+            return 3;
+        }
+
+        // 4node = parent is red gp is black and uncle is red
+        // Now the uncle must be red
+        return 4;
+    }
+
+    return -1; // error
+}
 
 // rotate right around the pivot n
 // assuming p and gp are valid
@@ -46,7 +171,7 @@ void rbt::rotate_left(Node *n, Node *grand_parent, Node *parent)
         return;
     }
 
-    //cant rotate left a left child of a parent
+    // cant rotate left a left child of a parent
     if (parent->left == n)
     {
         return;
@@ -81,7 +206,7 @@ void rbt::rotate_right(Node *n, Node *grand_parent, Node *parent)
         return;
     }
 
-    //cant rotate right a right child of a parent
+    // cant rotate right a right child of a parent
     if (parent->right == n)
     {
         return;
@@ -107,6 +232,7 @@ void rbt::rotate_right(Node *n, Node *grand_parent, Node *parent)
 }
 
 // parent is red while grand_parent and uncle is black
+// 3node = parent is red gp is black and uncle is black
 void rbt::three_node_case(Node *n)
 {
 
@@ -120,8 +246,8 @@ void rbt::three_node_case(Node *n)
     // right-left case
     if (grand_parent->right == parent && parent->left == n)
     {
-        rotate_right(n,grand_parent,parent); // RL -> RR
-    
+        rotate_right(n, grand_parent, parent); // RL -> RR
+
         // parent and child ptr get exchanged after rotation
         Node *tmp = n;
         n = parent;
@@ -130,8 +256,8 @@ void rbt::three_node_case(Node *n)
     // left-right case
     else if (grand_parent->left == parent && parent->right == n)
     {
-        rotate_left(n,grand_parent,parent); // LR -> LL
-    
+        rotate_left(n, grand_parent, parent); // LR -> LL
+
         // parent and child ptr get exchanged after rotation
         Node *tmp = n;
         n = parent;
@@ -152,7 +278,7 @@ void rbt::three_node_case(Node *n)
         parent->color = 'b';
 
         // single left rotation i.e anti clock wise
-        rotate_right(parent);
+        rotate_left(parent);
     }
 }
 
@@ -171,17 +297,34 @@ Node *rbt::find_uncle(Node *n)
     Node *grand_parent = root;
     Node *uncle = root;
 
-    while (tmp != n)
+    while (true)
     {
         if (n->data < tmp->data)
         {
             // still have the left subtree to go through
             if (tmp->left != nullptr)
             {
-                grand_parent = parent;
-                uncle = grand_parent->right;
-                parent = tmp;
-                tmp = tmp->left;
+                if (tmp->left != n)
+                {
+                    grand_parent = parent;
+                    parent = tmp;
+                    // uncle should be the opposite child to parent
+                    if (grand_parent->left == parent)
+                    {
+                        uncle = grand_parent->right;
+                    }
+                    else if (grand_parent->left == parent)
+                    {
+                        uncle = grand_parent->right;
+                    }
+
+                    tmp = tmp->left;
+                }
+                else
+                {
+                    // found the node
+                    return uncle;
+                }
             }
             else
             {
@@ -194,10 +337,28 @@ Node *rbt::find_uncle(Node *n)
             // still have the right subtree to go through
             if (tmp->right != nullptr)
             {
-                grand_parent = parent;
-                uncle = grand_parent->right;
-                parent = tmp;
-                tmp = tmp->right;
+                if (tmp->right != n)
+                {
+                    grand_parent = parent;
+                    parent = tmp;
+
+                    // uncle should be the opposite child to parent
+                    if (grand_parent->left == parent)
+                    {
+                        uncle = grand_parent->right;
+                    }
+                    else if (grand_parent->left == parent)
+                    {
+                        uncle = grand_parent->right;
+                    }
+
+                    tmp = tmp->right;
+                }
+                else
+                {
+                    // found the node
+                    return uncle;
+                }
             }
             else
             {
@@ -272,7 +433,7 @@ void rbt::rotate_left(Node *n)
         return;
     }
 
-    //cant rotate left a left child of a parent
+    // cant rotate left a left child of a parent
     if (parent->left == n)
     {
         return;
@@ -354,12 +515,12 @@ void rbt::rotate_right(Node *n)
         return;
     }
 
-    //cant rotate right a right child of a parent
+    // cant rotate right a right child of a parent
     if (parent->right == n)
     {
         return;
     }
-    
+
     if (parent == root)
     {
         root = n;
@@ -380,7 +541,7 @@ void rbt::rotate_right(Node *n)
 }
 
 // inserts the Node n according to the rules of bst
-char rbt::insert_like_bst(Node *n)
+int rbt::insert_like_bst(Node *n)
 {
     Node *parent = root;
     Node *grand_parent = root;
@@ -402,22 +563,7 @@ char rbt::insert_like_bst(Node *n)
                 // found the node
                 parent->left = n;
                 // determine whether we have 2node, 3node or a 4node case
-                if (parent->color == 'b')
-                {
-                    return '2';
-                }
-                else if (parent->color == 'r' && grand_parent->color == 'b')
-                {
-                    if (uncle == nullptr || uncle->color == 'b')
-                    {
-                        return '3';
-                    }
-                    return '4';
-                }
-                else
-                {
-                    return '4';
-                }
+                return determine_case(n, parent, grand_parent, uncle);
             }
         }
         else if (n->data > parent->data)
@@ -434,22 +580,7 @@ char rbt::insert_like_bst(Node *n)
                 // found the node
                 parent->right = n;
                 // determine whether we have 2node, 3node or a 4node case
-                if (parent->color == 'b')
-                {
-                    return '2';
-                }
-                else if (parent->color == 'r' && grand_parent->color == 'b')
-                {
-                    if (uncle == nullptr || uncle->color == 'b')
-                    {
-                        return '3';
-                    }
-                    return '4';
-                }
-                else
-                {
-                    return '4';
-                }
+                return determine_case(n, parent, grand_parent, uncle);
             }
         }
     }
@@ -469,22 +600,28 @@ void rbt::insert(int value)
     }
     else
     {
-        char node_case = insert_like_bst(new_node);
+        int node_case = insert_like_bst(new_node);
 
-        if (node_case == '2')
+        if (node_case == 2)
         {
             cout << "Simple 2 node case nothing\n";
             return;
         }
-        else if (node_case == '3')
+        else if (node_case == 3)
         {
             cout << "3 node case \n";
             three_node_case(new_node);
             return;
         }
-        else if (node_case == '4')
+        else if (node_case == 4)
         {
             cout << "4 node case \n";
+            four_node_case(new_node);
+            return;
+        }
+        else
+        {
+            cout << "Error \n";
             return;
         }
     }
