@@ -7,9 +7,11 @@ int main()
     rbt r;
 
     //LL works
-    // r.insert(20);
-    // r.insert(16);
-    // r.insert(1);
+    r.insert(20);
+    r.insert(16);
+    r.insert(1);
+
+    r.rotate_left(r.root->left);
 
     // //RR works
     // r.insert(20);

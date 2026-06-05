@@ -46,6 +46,12 @@ void rbt::rotate_left(Node *n, Node *grand_parent, Node *parent)
         return;
     }
 
+    //cant rotate left a left child of a parent
+    if (parent->left == n)
+    {
+        return;
+    }
+
     if (parent == root)
     {
         root = n;
@@ -71,6 +77,12 @@ void rbt::rotate_right(Node *n, Node *grand_parent, Node *parent)
 {
     // can't rotate if no parent
     if (parent == n)
+    {
+        return;
+    }
+
+    //cant rotate right a right child of a parent
+    if (parent->right == n)
     {
         return;
     }
@@ -260,6 +272,12 @@ void rbt::rotate_left(Node *n)
         return;
     }
 
+    //cant rotate left a left child of a parent
+    if (parent->left == n)
+    {
+        return;
+    }
+
     if (parent == root)
     {
         root = n;
@@ -336,6 +354,12 @@ void rbt::rotate_right(Node *n)
         return;
     }
 
+    //cant rotate right a right child of a parent
+    if (parent->right == n)
+    {
+        return;
+    }
+    
     if (parent == root)
     {
         root = n;
