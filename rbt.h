@@ -1,83 +1,93 @@
 #pragma once
 #include <iostream>
 using namespace std;
-
+//new branch
 struct Node
 {
     int data;
     char color; // r for red b for black
-    Node *left;
-    Node *right;
+    Node* left;
+    Node* right;
 };
 
 class rbt
 {
 public:
-    Node *root;
+    Node* root;
 
-    int insert_like_bst(Node *n);
+    int insert_like_bst(Node* n);
     bool delete_like_bst(int value);
-    int determine_case(Node *n, Node *parent, Node *grand_parent, Node *uncle);
+    int determine_case(Node* n, Node* parent, Node* grand_parent, Node* uncle);
 
     Node* search(int value);
     Node* smallest(Node* starting_node);
-
+    void predisplay(Node* t);
 public:
     rbt();
     ~rbt();
 
-    Node *find_parent(Node *n);
-    Node *find_grand_parent(Node *n);
-    Node *find_uncle(Node *n);
+    void preorder();
 
-    void three_node_case(Node *n);
-    void four_node_case(Node *n);
+    Node* find_parent(Node* n);
+    Node* find_grand_parent(Node* n);
+    Node* find_uncle(Node* n);
 
-    void rotate_right(Node *n);
-    void rotate_left(Node *n);
+    void three_node_case(Node* n);
+    void four_node_case(Node* n);
 
-    void rotate_right(Node *n, Node *grand_parent, Node *parent);
-    void rotate_left(Node *n, Node *grand_parent, Node *parent);
+    void rotate_right(Node* n);
+    void rotate_left(Node* n);
+
+    void rotate_right(Node* n, Node* grand_parent, Node* parent);
+    void rotate_left(Node* n, Node* grand_parent, Node* parent);
 
     void insert(int value);
 
-    int determine_case(Node *n);
+    int determine_case(Node* n);
+
+    bool deletenode(int v);
 
     bool delete_(int value);
-    
+    void checkdeletion(Node* t);
+
 };
 
-bool rbt::delete_(int value){
-    
-    Node* to_delete = search(value);
-
-    if (to_delete->color=='r')
+void rbt::predisplay(Node* t)
+{
+    if (t != nullptr)
     {
-        
+        cout << t->data << " ( " << t->color << " )" << endl << endl;
+
+        predisplay(t->left);
+        predisplay(t->right);
     }
-    
 }
+void rbt::preorder()
+{
+    predisplay(root);
+}
+
 
 // determine whether we have a 2node, 3node or a 4node case
 // 2node = parent is black   returns 2
 // 3node = parent is red gp is black and uncle is black  returns 3
 // 4node = parent is red gp is black and uncle is red    returns 4
-int rbt::determine_case(Node *n)
+int rbt::determine_case(Node* n)
 {
 
-    Node *parent = find_parent(n);
+    Node* parent = find_parent(n);
     // 2node = parent is black
     if (parent->color == 'b')
     {
         return 2;
     }
 
-    Node *grand_parent = find_parent(parent);
+    Node* grand_parent = find_parent(parent);
 
     if (parent->color == 'r' && grand_parent->color == 'b')
     {
         // find uncle
-        Node *uncle = nullptr;
+        Node* uncle = nullptr;
         if (grand_parent->right == parent)
         {
             uncle = grand_parent->left;
@@ -102,12 +112,12 @@ int rbt::determine_case(Node *n)
 }
 
 // Handles the 4node case where = parent is red gp is black and uncle is red
-void rbt::four_node_case(Node *n)
+void rbt::four_node_case(Node* n)
 {
 
-    Node *parent = find_parent(n);
-    Node *grand_parent = find_parent(parent);
-    Node *uncle = nullptr;
+    Node* parent = find_parent(n);
+    Node* grand_parent = find_parent(parent);
+    Node* uncle = nullptr;
     if (grand_parent->right == parent)
     {
         uncle = grand_parent->left;
@@ -155,7 +165,7 @@ void rbt::four_node_case(Node *n)
 // 2node = parent is black   returns 2
 // 3node = parent is red gp is black and uncle is black  returns 3
 // 4node = parent is red gp is black and uncle is red    returns 4
-int rbt::determine_case(Node *n, Node *parent, Node *grand_parent, Node *uncle)
+int rbt::determine_case(Node* n, Node* parent, Node* grand_parent, Node* uncle)
 {
 
     // 2node = parent is black
@@ -181,7 +191,7 @@ int rbt::determine_case(Node *n, Node *parent, Node *grand_parent, Node *uncle)
 
 // rotate right around the pivot n
 // assuming p and gp are valid
-void rbt::rotate_left(Node *n, Node *grand_parent, Node *parent)
+void rbt::rotate_left(Node* n, Node* grand_parent, Node* parent)
 {
     // can't rotate if no parent
     if (parent == n)
@@ -216,7 +226,7 @@ void rbt::rotate_left(Node *n, Node *grand_parent, Node *parent)
 
 // rotate right around the pivot n
 // assuming p and gp are valid
-void rbt::rotate_right(Node *n, Node *grand_parent, Node *parent)
+void rbt::rotate_right(Node* n, Node* grand_parent, Node* parent)
 {
     // can't rotate if no parent
     if (parent == n)
@@ -251,11 +261,11 @@ void rbt::rotate_right(Node *n, Node *grand_parent, Node *parent)
 
 // parent is red while grand_parent and uncle is black
 // 3node = parent is red gp is black and uncle is black
-void rbt::three_node_case(Node *n)
+void rbt::three_node_case(Node* n)
 {
 
-    Node *parent = find_parent(n);
-    Node *grand_parent = find_grand_parent(n);
+    Node* parent = find_parent(n);
+    Node* grand_parent = find_grand_parent(n);
 
     grand_parent->color = 'r'; // gp color would be changed at every case regardless
 
@@ -267,7 +277,7 @@ void rbt::three_node_case(Node *n)
         rotate_right(n, grand_parent, parent); // RL -> RR
 
         // parent and child ptr get exchanged after rotation
-        Node *tmp = n;
+        Node* tmp = n;
         n = parent;
         parent = tmp;
     }
@@ -277,7 +287,7 @@ void rbt::three_node_case(Node *n)
         rotate_left(n, grand_parent, parent); // LR -> LL
 
         // parent and child ptr get exchanged after rotation
-        Node *tmp = n;
+        Node* tmp = n;
         n = parent;
         parent = tmp;
     }
@@ -302,7 +312,7 @@ void rbt::three_node_case(Node *n)
 
 // find the uncle of the given node
 // if the node is not in the tree then it returns the would be uncle
-Node *rbt::find_uncle(Node *n)
+Node* rbt::find_uncle(Node* n)
 {
 
     if (n == root)
@@ -310,10 +320,10 @@ Node *rbt::find_uncle(Node *n)
         return root;
     }
 
-    Node *tmp = root;
-    Node *parent = root;
-    Node *grand_parent = root;
-    Node *uncle = root;
+    Node* tmp = root;
+    Node* parent = root;
+    Node* grand_parent = root;
+    Node* uncle = root;
 
     while (true)
     {
@@ -390,7 +400,7 @@ Node *rbt::find_uncle(Node *n)
 
 // find the grand parent of the given node
 // if the node is not in the tree then it returns the would be grand parent
-Node *rbt::find_grand_parent(Node *n)
+Node* rbt::find_grand_parent(Node* n)
 {
 
     if (n == root)
@@ -398,9 +408,9 @@ Node *rbt::find_grand_parent(Node *n)
         return root;
     }
 
-    Node *tmp = root;
-    Node *parent = root;
-    Node *grand_parent = root;
+    Node* tmp = root;
+    Node* parent = root;
+    Node* grand_parent = root;
 
     while (tmp != n)
     {
@@ -440,10 +450,10 @@ Node *rbt::find_grand_parent(Node *n)
 
 // rotate left around the pivot n
 // finds gp and parent automatically
-void rbt::rotate_left(Node *n)
+void rbt::rotate_left(Node* n)
 {
-    Node *parent = find_parent(n);
-    Node *grand_parent = find_grand_parent(n);
+    Node* parent = find_parent(n);
+    Node* grand_parent = find_grand_parent(n);
 
     // can't rotate if no parent
     if (parent == n)
@@ -478,15 +488,15 @@ void rbt::rotate_left(Node *n)
 
 // find the parent of the given node
 // if the node is not in the tree then it returns the would be parent
-Node *rbt::find_parent(Node *n)
+Node* rbt::find_parent(Node* n)
 {
     if (n == root)
     {
         return root;
     }
 
-    Node *tmp = root;
-    Node *parent = root;
+    Node* tmp = root;
+    Node* parent = root;
     while (tmp != n)
     {
         if (n->data < tmp->data)
@@ -522,10 +532,10 @@ Node *rbt::find_parent(Node *n)
 }
 
 // rotate right around the pivot n
-void rbt::rotate_right(Node *n)
+void rbt::rotate_right(Node* n)
 {
-    Node *parent = find_parent(n);
-    Node *grand_parent = find_grand_parent(n);
+    Node* parent = find_parent(n);
+    Node* grand_parent = find_grand_parent(n);
 
     // can't rotate if no parent
     if (parent == n)
@@ -559,11 +569,11 @@ void rbt::rotate_right(Node *n)
 }
 
 // inserts the Node n according to the rules of bst
-int rbt::insert_like_bst(Node *n)
+int rbt::insert_like_bst(Node* n)
 {
-    Node *parent = root;
-    Node *grand_parent = root;
-    Node *uncle = root;
+    Node* parent = root;
+    Node* grand_parent = root;
+    Node* uncle = root;
 
     while (true)
     {
@@ -607,7 +617,7 @@ int rbt::insert_like_bst(Node *n)
 void rbt::insert(int value)
 {
 
-    Node *new_node = new Node{value, 'r', nullptr, nullptr};
+    Node* new_node = new Node{ value, 'r', nullptr, nullptr };
 
     if (root == nullptr)
     {
@@ -645,7 +655,214 @@ void rbt::insert(int value)
     }
 }
 
-rbt::rbt() : root{nullptr}
+
+
+bool rbt::deletenode(int v)
+{
+    Node* t = root;
+    Node* p = nullptr;
+    while (t != nullptr)
+    {
+        if (v == t->data)
+        {
+
+            if (t->left == nullptr && t->right == nullptr) //simply delete node
+            {
+                if (t == root)
+                {
+                    delete root;
+                    root = nullptr;
+                }
+                else
+                {
+                    if (p->left == t)
+                        p->left = nullptr;
+                    else
+                        p->right = nullptr;
+
+                    delete t;
+                }
+                return true;
+            }
+            else if (t->left != nullptr && t->right == nullptr) // one child case
+            {
+
+                if (t == root)
+                {
+                    root = root->left;
+                }
+                else
+                {
+                    if (p->left == t)
+                        p->left = t->left;
+                    else
+                        p->right = t->left;
+
+
+                }
+                if (t->color == 'B')  //check color of node if red then simply delete
+                {
+                    if (t->left->color == 'R')
+                        t->left->color = 'B';
+                    else
+                        checkdeletion(t->left);//if child and parent both are black that is double black problem
+                }
+                delete t;
+                return true;
+            }
+
+            else if (t->left == nullptr && t->right != nullptr)
+            {
+                if (t == root)
+                {
+                    root = root->right;
+
+                }
+                else
+                {
+                    if (p->left == t)
+                        p->left = t->right;
+                    else
+                        p->right = t->right;
+                }
+                if (t->color == 'B')
+                {
+                    if (t->right->color == 'R')
+                        t->right->color = 'B';
+                    else
+                        checkdeletion(t->right);
+                }
+                delete t;
+                return true;
+            }
+            else if (t->left != nullptr && t->right != nullptr)
+            {
+                Node* temp = t->right;
+                Node* ptmp = t;
+                while (temp->left != nullptr)
+                {
+                    ptmp = temp;
+                    temp = temp->left;
+                }
+                char deletedColor = temp->color;
+
+                t->data = temp->data;
+                if (ptmp->left == temp)
+                    ptmp->left = temp->right;
+                else
+                    ptmp->right = temp->right;
+
+                if (deletedColor == 'B')
+                {
+                    if (temp->right != nullptr && temp->right->color == 'R') //temp->right=child of node.
+                        temp->right->color = 'B';
+                    else
+                        checkdeletion(temp->right);
+                }
+
+
+                delete temp;
+
+                return true;
+            }
+        }
+        else if (v < t->data)
+        {
+            p = t;
+            t = t->left;
+        }
+        else if (v > t->data)
+        {
+            p = t;
+            t = t->right;
+        }
+    }
+    return false;
+}
+
+void rbt::checkdeletion(Node* t)
+{
+
+    while (t != root && t->color == 'B')
+    {
+        Node* sib = nullptr;
+        Node* p = find_parent(t);
+
+        if (p->left == t)
+        {
+            sib = p->right;
+            if (sib->color == 'R')
+            {
+                sib->color = 'B';
+                p->color = 'R';
+                rotate_left(p);
+                sib = p->right;
+            }
+
+
+            if (sib->left->color == 'B' && sib->right->color == 'B')
+            {
+                sib->color = 'R';
+                t = p;
+            }
+            else
+            {
+
+                if (sib->right->color == 'B')
+                {
+                    sib->left->color = 'B';
+                    sib->color = 'R';
+                    rotate_right(sib);
+                    sib = p->right;
+                }
+
+                sib->color = p->color;
+                p->color = 'B';
+                sib->right->color = 'B';
+                rotate_left(p);
+                t = root;
+            }
+        }
+        else       // just oppsite of the upper version
+        {
+            sib = p->left;
+            if (sib->color == 'R')
+            {
+                sib->color = 'B';
+                p->color = 'R';
+                rotate_right(p);
+                sib = p->left;
+            }
+
+
+            if (sib->left->color == 'B' && sib->right->color == 'B')
+            {
+                sib->color = 'R';
+                t = p;
+            }
+            else
+            {
+
+                if (sib->left->color == 'B')
+                {
+                    sib->left->color = 'B';
+                    sib->color = 'R';
+                    rotate_left(sib);
+                    sib = p->left;
+                }
+
+                sib->color = p->color;
+                p->color = 'B';
+                sib->left->color = 'B';
+                rotate_right(p);
+                t = root;
+            }
+        }
+    }
+    t->color = 'B';
+}
+
+rbt::rbt() : root{ nullptr }
 {
 }
 
