@@ -1,7 +1,4 @@
-#pragma once
 #include "rbt.h"
-#include "insert.cpp"
-#include "delete2.cpp"
 
 void rbt::predisplay(Node *t)
 {

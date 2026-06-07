@@ -1,18 +1,16 @@
-#pragma once
 #include "rbt.h"
 // This header file contains all the code related to deletion
 
-
 bool rbt::deletenode(int v)
 {
-    Node* t = root;
-    Node* p = nullptr;
+    Node *t = root;
+    Node *p = nullptr;
     while (t != nullptr)
     {
         if (v == t->data)
         {
-
-            if (t->left == nullptr && t->right == nullptr) //simply delete node
+            //red leaf case
+            if (t->left == nullptr && t->right == nullptr) // simply delete node
             {
                 if (t == root)
                 {
@@ -43,15 +41,13 @@ bool rbt::deletenode(int v)
                         p->left = t->left;
                     else
                         p->right = t->left;
-
-
                 }
-                if (t->color == 'B')  //check color of node if red then simply delete
+                if (t->color == 'B') // check color of node if red then simply delete
                 {
                     if (t->left->color == 'R')
                         t->left->color = 'B';
                     else
-                        checkdeletion(t->left);//if child and parent both are black that is double black problem
+                        checkdeletion(t->left); // if child and parent both are black that is double black problem
                 }
                 delete t;
                 return true;
@@ -62,7 +58,6 @@ bool rbt::deletenode(int v)
                 if (t == root)
                 {
                     root = root->right;
-
                 }
                 else
                 {
@@ -83,8 +78,8 @@ bool rbt::deletenode(int v)
             }
             else if (t->left != nullptr && t->right != nullptr)
             {
-                Node* temp = t->right;
-                Node* ptmp = t;
+                Node *temp = t->right;
+                Node *ptmp = t;
                 while (temp->left != nullptr)
                 {
                     ptmp = temp;
@@ -100,12 +95,11 @@ bool rbt::deletenode(int v)
 
                 if (deletedColor == 'B')
                 {
-                    if (temp->right != nullptr && temp->right->color == 'R') //temp->right=child of node.
+                    if (temp->right != nullptr && temp->right->color == 'R') // temp->right=child of node.
                         temp->right->color = 'B';
                     else
                         checkdeletion(temp->right);
                 }
-
 
                 delete temp;
 
@@ -126,13 +120,13 @@ bool rbt::deletenode(int v)
     return false;
 }
 
-void rbt::checkdeletion(Node* t)
+void rbt::checkdeletion(Node *t)
 {
 
     while (t != root && t->color == 'B')
     {
-        Node* sib = nullptr;
-        Node* p = find_parent(t);
+        Node *sib = nullptr;
+        Node *p = find_parent(t);
 
         if (p->left == t)
         {
@@ -144,7 +138,6 @@ void rbt::checkdeletion(Node* t)
                 rotate_left(p);
                 sib = p->right;
             }
-
 
             if (sib->left->color == 'B' && sib->right->color == 'B')
             {
@@ -169,7 +162,7 @@ void rbt::checkdeletion(Node* t)
                 t = root;
             }
         }
-        else       // just oppsite of the upper version
+        else // just oppsite of the upper version
         {
             sib = p->left;
             if (sib->color == 'R')
@@ -179,7 +172,6 @@ void rbt::checkdeletion(Node* t)
                 rotate_right(p);
                 sib = p->left;
             }
-
 
             if (sib->left->color == 'B' && sib->right->color == 'B')
             {

@@ -1,4 +1,3 @@
-#pragma once
 #include "rbt.h"
 // This header file contains all the code related to insertion
 
