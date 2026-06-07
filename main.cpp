@@ -43,7 +43,7 @@ int main()
     r.insert(125);
 
 
-    //r.preorder();
+    r.preorder();
     //r.inorder();
     //r.postorder();
     

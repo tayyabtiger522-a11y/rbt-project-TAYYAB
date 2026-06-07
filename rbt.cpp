@@ -255,6 +255,33 @@ Node *rbt::find_parent(Node *n)
     return parent;
 }
 
+
+// given the value return the node where the value is located in the tree
+Node *rbt::search(int value)
+{
+    Node *current = root;
+
+    // if we haven't found the value then search for the value in the tree
+    while (current->data != value)
+    {
+        // go to left subtree
+        if (value < current->data)
+        {
+            current = current->left; // advance the child
+        }
+        else if (value > current->data)
+        {
+            // go to right subtree
+            current = current->right; // advance the child
+        }
+
+        // value is not in the current tree
+        if (current == nullptr)
+            return current;
+    }
+    return current;
+}
+
 rbt::rbt() : root{nullptr}
 {
 }

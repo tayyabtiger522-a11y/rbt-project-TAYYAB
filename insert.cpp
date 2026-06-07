@@ -11,14 +11,14 @@ int rbt::determine_case(Node* n, Node* parent, Node* grand_parent, Node* uncle)
 {
 
     // 2node = parent is black
-    if (parent->color == 'b')
+    if (parent->color == 'B')
     {
         return 2;
     }
     // 3node = parent is red gp is black and uncle is black
-    else if (parent->color == 'r' && grand_parent->color == 'b')
+    else if (parent->color == 'R' && grand_parent->color == 'B')
     {
-        if (uncle == nullptr || uncle->color == 'b')
+        if (uncle == nullptr || uncle->color == 'B')
         {
             return 3;
         }
@@ -41,14 +41,14 @@ int rbt::determine_case(Node *n)
 
     Node *parent = find_parent(n);
     // 2node = parent is black
-    if (parent->color == 'b')
+    if (parent->color == 'B')
     {
         return 2;
     }
 
     Node *grand_parent = find_parent(parent);
 
-    if (parent->color == 'r' && grand_parent->color == 'b')
+    if (parent->color == 'R' && grand_parent->color == 'B')
     {
         // find uncle
         Node *uncle = nullptr;
@@ -62,7 +62,7 @@ int rbt::determine_case(Node *n)
         }
 
         // 3node = parent is red gp is black and uncle is black
-        if (uncle == nullptr || uncle->color == 'b')
+        if (uncle == nullptr || uncle->color == 'B')
         {
             return 3;
         }
@@ -129,7 +129,7 @@ void rbt::three_node_case(Node* n)
     Node* parent = find_parent(n);
     Node* grand_parent = find_parent(parent);
 
-    grand_parent->color = 'r'; // gp color would be changed at every case regardless
+    grand_parent->color = 'R'; // gp color would be changed at every case regardless
 
     // first reduce the RL and LR cases if they are present
 
@@ -157,7 +157,7 @@ void rbt::three_node_case(Node* n)
     // left-left case
     if (grand_parent->left == parent && parent->left == n)
     {
-        parent->color = 'b';
+        parent->color = 'B';
 
         // single right rotation i.e clock wise
         rotate_right(parent);
@@ -165,7 +165,7 @@ void rbt::three_node_case(Node* n)
     // right-right case
     else if (grand_parent->right == parent && parent->right == n)
     {
-        parent->color = 'b';
+        parent->color = 'B';
 
         // single left rotation i.e anti clock wise
         rotate_left(parent);
@@ -189,15 +189,15 @@ void rbt::four_node_case(Node* n)
     }
 
     // color flip
-    grand_parent->color = 'r';
-    uncle->color = 'b';
-    parent->color = 'b';
+    grand_parent->color = 'R';
+    uncle->color = 'B';
+    parent->color = 'B';
 
     // simplest case also the base case for recursion
     if (grand_parent == root)
     {
         // root would always be black
-        grand_parent->color = 'b';
+        grand_parent->color = 'B';
         return;
     }
 
@@ -226,12 +226,12 @@ void rbt::four_node_case(Node* n)
 void rbt::insert(int value)
 {
 
-    Node *new_node = new Node{value, 'r', nullptr, nullptr};
+    Node *new_node = new Node{value, 'R', nullptr, nullptr};
 
     if (root == nullptr)
     {
         root = new_node;
-        root->color = 'b';
+        root->color = 'B';
 
         return;
     }

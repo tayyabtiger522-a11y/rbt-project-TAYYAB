@@ -64,8 +64,6 @@ public:
     //display order: LRN
     void postorder();
 
-    
-
     void insert(int value);
     bool deletenode(int v);
 
